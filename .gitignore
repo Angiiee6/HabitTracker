@@ -1,0 +1,31 @@
+### Xcode ###
+# Mac metadata
+.DS_Store
+
+# Temporära redigeringsfiler
+*.swp
+*.back
+
+### Användarspecifika inställningar ###
+# Xcode-användardata (skiljer sig mellan utvecklare)
+*.xcuserstate
+*.xcuserdata
+
+# Workspace-filer (behåll endast den gemensamma)
+*.xcworkspace
+!default.xcworkspace  # Undantag - denna är viktig för projektet
+
+### Byggsystem ###
+# Genererade byggfiler
+DerivedData/
+build/
+
+### Projektkonfiguration ###
+# IDE-specifika inställningar
+xcshareddata/
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+
+### Swift Package Manager ###
+.swiftpm/
+Package.resolved
