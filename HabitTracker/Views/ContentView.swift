@@ -1,66 +1,154 @@
 import SwiftUI
 import SwiftData
 
-
-// MARK: - Huvudvy
-
 struct ContentView: View {
+    @State private var selectedTab = 0
+    
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            TodayTabView()
+                .tabItem {
+                    Label("Idag", systemImage: "checkmark.circle.fill")
+                }
+                .tag(0)
+            
+            CalendarView()
+                .tabItem {
+                    Label("Kalender", systemImage: "calendar")
+                }
+                .tag(1)
+            
+            HabitLibraryView()
+                .tabItem {
+                    Label("Vanor", systemImage: "list.bullet")
+                }
+                .tag(2)
+        }
+    }
+}
+struct TodayTabView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Habit.creationDate) private var allHabits: [Habit]
-    @State private var showingHabitLibrary = false
+    @Query(filter: #Predicate<Habit> { $0.isDaily }) private var habits: [Habit]
     
 
-    var dailyHabits: [Habit] {
-        allHabits.filter { $0.isDaily }
+    
+    var incompleteHabits: [Habit] {
+        habits.filter { !$0.isCompleted(for: Date()) }
+    }
+    
+    var completedHabits: [Habit] {
+        habits.filter { $0.isCompleted(for: Date()) }
     }
     
     var body: some View {
         NavigationStack {
-            VStack {
-                if dailyHabits.isEmpty {
-                    ContentUnavailableView(
-                        "Inga vanor idag",
-                        systemImage: "plus.circle",
-                        description: Text("Lägg till vanor från biblioteket")
-                    )
-                } else {
-                    List {
-                        ForEach(dailyHabits) { habit in
-                            Text(habit.name)
+            List {
+
+                
+                // Oavklarade vanor
+                Section(incompleteHabits.isEmpty ? "Alla vanor klara" : "Att göra") {
+                    ForEach(incompleteHabits) { habit in
+                        HabitRowView(habit: habit, isCompleted: false)
+                    }
+                }
+                // Avklarade vanor
+                if !completedHabits.isEmpty {
+                    Section("Avklarade idag") {
+                        ForEach(completedHabits) { habit in
+                            HabitRowView(habit: habit, isCompleted: true)
                         }
-                        .onDelete(perform: removeFromDaily)
                     }
                 }
             }
             .navigationTitle("Dagens vanor")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingHabitLibrary = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
+            .overlay {
+                if habits.isEmpty {
+                    ContentUnavailableView(
+                        "Inga vanor idag",
+                        systemImage: "plus.circle",
+                        description: Text("Lägg till vanor i biblioteket")
+                    )
                 }
-            }
-            .sheet(isPresented: $showingHabitLibrary) {
-                HabitLibraryView()
-            }
-        }
-    }
-    
-    /// Ta bort vanor från dagens lista men inte permanent)
-    private func removeFromDaily(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                dailyHabits[index].isDaily = false
             }
         }
     }
 }
 
+struct HabitRowView: View {
+    @Bindable var habit: Habit
+    var isCompleted: Bool
+    @Environment(\.modelContext) private var modelContext
+    
+    var body: some View {
+        HStack {
+            Text(habit.name)
+            
+            Spacer()
+            
+            // Streak-visning
+            HStack(spacing: 4) {
+                Image(systemName: "flame.fill")
+                    .foregroundColor(
+                        isCompleted ?
+                        (habit.currentStreak > 0 ? .orange : .gray) :
+                        .gray
+                    )
+                Text("\(isCompleted ? habit.currentStreak : habit.potentialStreak)")
+                    .font(.footnote.monospacedDigit())
+            }
+            
+            // Avmarkeringsknapp
+            Button {
+                toggleHabitCompletion()
+            } label: {
+                Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                    .foregroundColor(isCompleted ? .green : .blue)
+                    .imageScale(.large)
+            }
+            .buttonStyle(.borderless)
+        }
+    }
+    
+    private func toggleHabitCompletion() {
+        withAnimation {
+            if isCompleted {
+                removeCompletion()
+            } else {
+                addCompletion()
+            }
+        }
+    }
+    
+    private func addCompletion() {
+        let completion = HabitCompletion(date: Date())
+        habit.completions.append(completion)
+    }
+    
+    private func removeCompletion() {
+        if let index = habit.completions.firstIndex(where: {
+            Calendar.current.isDate($0.date, inSameDayAs: Date())
+        }) {
+            modelContext.delete(habit.completions[index])
+        }
+    }
+}
 
 
-  #Preview {
-      ContentView()
-          .modelContainer(for: Habit.self, inMemory: true)
-  }
+#Preview {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Habit.self, HabitCompletion.self, configurations: config)
+    
+    // Testdata
+    let habit1 = Habit(name: "Träna", isDaily: true)
+    let habit2 = Habit(name: "Läs", isDaily: true)
+    
+    // Lägg till historik
+    let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+    habit1.completions.append(HabitCompletion(date: yesterday)) // Endast igår
+    
+    container.mainContext.insert(habit1)
+    container.mainContext.insert(habit2)
+    
+    return TodayTabView()
+        .modelContainer(container)
+}

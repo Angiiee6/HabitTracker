@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 struct AddNewHabitView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -9,10 +8,10 @@ struct AddNewHabitView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Vanas namn", text: $habitName)
+                TextField("Namn på vana", text: $habitName)
                     .autocapitalization(.words)
             }
-            .navigationTitle("Ny vana")
+            .navigationTitle("Lägg till vana")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Avbryt") {
@@ -33,8 +32,10 @@ struct AddNewHabitView: View {
     private func addNewHabit() {
         let newHabit = Habit(name: habitName)
         modelContext.insert(newHabit)
+        habitName = ""
     }
 }
+
 
 #Preview {
     AddNewHabitView()

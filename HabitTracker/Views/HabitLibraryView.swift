@@ -1,59 +1,47 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - Vanebibliotek
 struct HabitLibraryView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
     @Query(sort: \Habit.name) private var habits: [Habit]
-    @State private var showingAddHabit = false
+    @State private var newHabitName = ""
     
     var body: some View {
         NavigationStack {
             List {
-                ForEach(habits) { habit in
+                Section("Lägg till ny vana") {
                     HStack {
-                        Text(habit.name)
-                        Spacer()
-                        if habit.isDaily {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(.green)
+                        TextField("Namn på vana", text: $newHabitName)
+                        Button("Lägg till") {
+                            let newHabit = Habit(name: newHabitName)
+                            modelContext.insert(newHabit)
+                            newHabitName = ""
+                        }
+                        .disabled(newHabitName.isEmpty)
+                    }
+                }
+                
+                Section("Mina vanor") {
+                    ForEach(habits) { habit in
+                        HStack {
+                            Text(habit.name)
+                            Spacer()
+                            if habit.isDaily {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        .onTapGesture {
+                            habit.isDaily.toggle()
                         }
                     }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        toggleDailyStatus(for: habit)
-                    }
+                    .onDelete(perform: deleteHabits)
                 }
-                .onDelete(perform: deleteHabits)
             }
             .navigationTitle("Vanebibliotek")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Klar") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingAddHabit = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
-            }
-            .sheet(isPresented: $showingAddHabit) {
-                AddNewHabitView()
-            }
         }
     }
     
-    /// Växlar en vanas dagliga status
-    private func toggleDailyStatus(for habit: Habit) {
-        habit.isDaily.toggle()
-    }
-    
-    /// Raderar vanor permanent
     private func deleteHabits(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
