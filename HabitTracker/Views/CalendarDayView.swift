@@ -78,32 +78,6 @@ struct CalendarDayView: View {
         .frame(height: 40)
     }
 }
-    
-//    var body: some View {
-//        ZStack {
-//            if date == Date.distantPast {
-//                Rectangle()
-//                    .foregroundColor(.clear)
-//            } else {
-//                Circle()
-//                    .foregroundColor(isSelected ? .blue : (hasCompletions ? .green.opacity(0.3) : .clear))
-//                    .frame(width: 32, height: 32)
-//                
-//                Text("\(Calendar.current.component(.day, from: date))")
-//                    .foregroundColor(isSelected ? .white : .primary)
-//                    .fontWeight(isSelected ? .bold : .regular)
-//                
-//                if hasCompletions {
-//                    Circle()
-//                        .frame(width: 8, height: 8)
-//                        .foregroundColor(.green)
-//                        .offset(x: 12, y: 12)
-//                }
-//            }
-//        }
-//        .frame(height: 40)
-//    }
-//}
 
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)

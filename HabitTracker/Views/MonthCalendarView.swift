@@ -71,15 +71,23 @@ struct MonthCalendarView: View {
         guard let monthInterval = calendar.dateInterval(of: .month, for: selectedDate) else { return [] }
         
         var dates: [Date] = []
-        var currentDate = monthInterval.start
+        let firstDayOfMonth = monthInterval.start
+        let firstWeekday = calendar.component(.weekday, from: firstDayOfMonth)
+        let daysToSubtract = (firstWeekday + 5) % 7
         
-        // Fyll i tomma rutor för första veckan
-        let firstWeekday = calendar.component(.weekday, from: currentDate)
-        for _ in 1..<firstWeekday {
-            dates.append(Date.distantPast) // Tom plats
+        // Lägg till föregående månads dagar för att fylla ut veckan
+        if daysToSubtract > 0 {
+            if let previousMonthDays = calendar.date(byAdding: .day, value: -daysToSubtract, to: firstDayOfMonth) {
+                for i in 0..<daysToSubtract {
+                    if let date = calendar.date(byAdding: .day, value: i, to: previousMonthDays) {
+                        dates.append(date)
+                    }
+                }
+            }
         }
         
-        // Lägg till alla dagar i månaden
+        // Lägg till aktuella månadens dagar
+        var currentDate = firstDayOfMonth
         while currentDate < monthInterval.end {
             dates.append(currentDate)
             currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
