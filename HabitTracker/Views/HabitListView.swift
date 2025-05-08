@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-struct HabitLibraryView: View {
+struct HabitListView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Habit.name) private var habits: [Habit]
     @State private var newHabitName = ""
@@ -9,9 +9,9 @@ struct HabitLibraryView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Lägg till ny vana") {
+                Section("Lägg till nytt mål") {
                     HStack {
-                        TextField("Namn på vana", text: $newHabitName)
+                        TextField("Namn på mål", text: $newHabitName)
                         Button("Lägg till") {
                             let newHabit = Habit(name: newHabitName)
                             modelContext.insert(newHabit)
@@ -21,8 +21,9 @@ struct HabitLibraryView: View {
                     }
                 }
                 
-                Section("Mina vanor") {
+                Section("Mina mål") {
                     ForEach(habits) { habit in
+                        @Bindable var habit = habit
                         HStack {
                             Text(habit.name)
                             Spacer()
@@ -38,7 +39,7 @@ struct HabitLibraryView: View {
                     .onDelete(perform: deleteHabits)
                 }
             }
-            .navigationTitle("Vanebibliotek")
+            .navigationTitle("Listade mål")
         }
     }
     
@@ -52,6 +53,6 @@ struct HabitLibraryView: View {
 }
 
 #Preview {
-    HabitLibraryView()
+    HabitListView()
         .modelContainer(for: Habit.self, inMemory: true)
 }

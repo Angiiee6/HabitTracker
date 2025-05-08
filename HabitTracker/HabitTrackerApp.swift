@@ -4,9 +4,14 @@ import SwiftData
 @main
 struct HabitTrackerApp: App {
     var sharedModelContainer: ModelContainer = {
+//        let schema = Schema([
+//            Habit.self,
+//        ])
         let schema = Schema([
             Habit.self,
+            HabitCompletion.self
         ])
+        
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
@@ -18,7 +23,7 @@ struct HabitTrackerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TodayView()
         }
         .modelContainer(sharedModelContainer)
     }

@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-struct ContentView: View {
+struct TodayView: View {
     @State private var selectedTab = 0
     
     var body: some View {
@@ -18,9 +18,9 @@ struct ContentView: View {
                 }
                 .tag(1)
             
-            HabitLibraryView()
+            HabitListView()
                 .tabItem {
-                    Label("Vanor", systemImage: "list.bullet")
+                    Label("Mål", systemImage: "list.bullet")
                 }
                 .tag(2)
         }
@@ -46,7 +46,7 @@ struct TodayTabView: View {
 
                 
                 // Oavklarade vanor
-                Section(incompleteHabits.isEmpty ? "Alla vanor klara" : "Att göra") {
+                Section(incompleteHabits.isEmpty ? "Alla mål klara" : "Att göra") {
                     ForEach(incompleteHabits) { habit in
                         HabitRowView(habit: habit, isCompleted: false)
                     }
@@ -60,11 +60,11 @@ struct TodayTabView: View {
                     }
                 }
             }
-            .navigationTitle("Dagens vanor")
+            .navigationTitle("Dagens mål")
             .overlay {
                 if habits.isEmpty {
                     ContentUnavailableView(
-                        "Inga vanor idag",
+                        "Inga mål idag",
                         systemImage: "plus.circle",
                         description: Text("Lägg till vanor i biblioteket")
                     )
@@ -133,18 +133,27 @@ struct HabitRowView: View {
     }
 }
 
+//#Preview("TodayTabView - Empty") {
+//    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+//    let container = try! ModelContainer(
+//        for: Habit.self, HabitCompletion.self,
+//        configurations: config
+//    )
+//    return TodayTabView()
+//        .modelContainer(container)
+//}
 
-#Preview {
+
+#Preview("TodayTabView - With Data") {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: Habit.self, HabitCompletion.self, configurations: config)
+    let container = try! ModelContainer(
+        for: Habit.self, HabitCompletion.self,
+        configurations: config
+    )
     
-    // Testdata
-    let habit1 = Habit(name: "Träna", isDaily: true)
-    let habit2 = Habit(name: "Läs", isDaily: true)
-    
-    // Lägg till historik
-    let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
-    habit1.completions.append(HabitCompletion(date: yesterday)) // Endast igår
+    let habit1 = Habit(name: "Meditate", isDaily: true)
+    let habit2 = Habit(name: "Plan Day", isDaily: true)
+    habit1.completions.append(HabitCompletion(date: Date()))
     
     container.mainContext.insert(habit1)
     container.mainContext.insert(habit2)

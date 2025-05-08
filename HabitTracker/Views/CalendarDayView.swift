@@ -4,24 +4,35 @@ import SwiftData
 
 struct CalendarDayView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query private var completions: [HabitCompletion]
+    
     var date: Date
     var isSelected: Bool
     
-    private var hasCompletions: Bool {
+    init(date: Date, isSelected: Bool) {
+        self.date = date
+        self.isSelected = isSelected
+        
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
         guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
-            return false
+            _completions = Query(filter: #Predicate { _ in false })
+            return
         }
         
-        let request = FetchDescriptor<HabitCompletion>(
-            predicate: #Predicate { completion in
+        _completions = Query(
+            filter: #Predicate { completion in
                 completion.date >= startOfDay && completion.date < endOfDay
-            }
+            },
+            sort: \.date
         )
-        
-        return (try? modelContext.fetch(request).isEmpty == false) ?? false
     }
+    
+    private var hasCompletions: Bool {
+        !completions.isEmpty
+    }
+    
+    
     
     var body: some View {
         ZStack {
@@ -48,6 +59,7 @@ struct CalendarDayView: View {
         .frame(height: 40)
     }
 }
+
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: Habit.self, HabitCompletion.self, configurations: config)
