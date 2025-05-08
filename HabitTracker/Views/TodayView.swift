@@ -133,31 +133,31 @@ struct HabitRowView: View {
     }
 }
 
-//#Preview("TodayTabView - Empty") {
-//    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-//    let container = try! ModelContainer(
-//        for: Habit.self, HabitCompletion.self,
-//        configurations: config
-//    )
-//    return TodayTabView()
-//        .modelContainer(container)
-//}
-
-
-#Preview("TodayTabView - With Data") {
+#Preview("TodayTabView - Empty") {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(
         for: Habit.self, HabitCompletion.self,
         configurations: config
     )
-    
-    let habit1 = Habit(name: "Meditate", isDaily: true)
-    let habit2 = Habit(name: "Plan Day", isDaily: true)
-    habit1.completions.append(HabitCompletion(date: Date()))
-    
-    container.mainContext.insert(habit1)
-    container.mainContext.insert(habit2)
-    
     return TodayTabView()
         .modelContainer(container)
 }
+
+
+//#Preview("TodayTabView - With Data") {
+//    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+//    let container = try! ModelContainer(
+//        for: Habit.self, HabitCompletion.self,
+//        configurations: config
+//    )
+//    
+//    let habit1 = Habit(name: "Meditera", isDaily: true)
+//    let habit2 = Habit(name: "Planera dagen", isDaily: true)
+//    habit1.completions.append(HabitCompletion(date: Date()))
+//    
+//    container.mainContext.insert(habit1)
+//    container.mainContext.insert(habit2)
+//    
+//    return TodayTabView()
+//        .modelContainer(container)
+//}

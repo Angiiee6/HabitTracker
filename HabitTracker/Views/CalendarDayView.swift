@@ -9,6 +9,11 @@ struct CalendarDayView: View {
     var date: Date
     var isSelected: Bool
     
+    //ny för att visa dagens datum
+    var isToday: Bool {
+        Calendar.current.isDate(date, inSameDayAs: Date())
+    }
+    
     init(date: Date, isSelected: Bool) {
         self.date = date
         self.isSelected = isSelected
@@ -32,23 +37,37 @@ struct CalendarDayView: View {
         !completions.isEmpty
     }
     
-    
-    
     var body: some View {
         ZStack {
             if date == Date.distantPast {
                 Rectangle()
                     .foregroundColor(.clear)
             } else {
-                Circle()
-                    .foregroundColor(isSelected ? .blue : (hasCompletions ? .green.opacity(0.3) : .clear))
-                    .frame(width: 32, height: 32)
+                // Bakgrundscirkel (nu med tre tillstånd)
+                ZStack {
+                    //Vald dag
+                    if isSelected {
+                        Circle()
+                            .foregroundColor(.blue)
+                        //dagens datum med cirkel
+                    } else if isToday {
+                        Circle()
+                            .stroke(Color.blue, lineWidth: 2)
+                        //om mål är avklarade
+                    } else if hasCompletions {
+                        Circle()
+                            .foregroundColor(.green.opacity(0.3))
+                    }
+                }
+                .frame(width: 32, height: 32)
                 
+                // Datumtext
                 Text("\(Calendar.current.component(.day, from: date))")
-                    .foregroundColor(isSelected ? .white : .primary)
-                    .fontWeight(isSelected ? .bold : .regular)
+                    .foregroundColor(isSelected ? .white : (isToday ? .blue : .primary))
+                    .fontWeight(isSelected ? .bold : (isToday ? .semibold : .regular))
                 
-                if hasCompletions {
+                // Completion-prick
+                if hasCompletions && !isSelected {
                     Circle()
                         .frame(width: 8, height: 8)
                         .foregroundColor(.green)
@@ -59,6 +78,32 @@ struct CalendarDayView: View {
         .frame(height: 40)
     }
 }
+    
+//    var body: some View {
+//        ZStack {
+//            if date == Date.distantPast {
+//                Rectangle()
+//                    .foregroundColor(.clear)
+//            } else {
+//                Circle()
+//                    .foregroundColor(isSelected ? .blue : (hasCompletions ? .green.opacity(0.3) : .clear))
+//                    .frame(width: 32, height: 32)
+//                
+//                Text("\(Calendar.current.component(.day, from: date))")
+//                    .foregroundColor(isSelected ? .white : .primary)
+//                    .fontWeight(isSelected ? .bold : .regular)
+//                
+//                if hasCompletions {
+//                    Circle()
+//                        .frame(width: 8, height: 8)
+//                        .foregroundColor(.green)
+//                        .offset(x: 12, y: 12)
+//                }
+//            }
+//        }
+//        .frame(height: 40)
+//    }
+//}
 
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)

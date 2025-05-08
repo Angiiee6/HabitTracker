@@ -4,9 +4,7 @@ import SwiftData
 @main
 struct HabitTrackerApp: App {
     var sharedModelContainer: ModelContainer = {
-//        let schema = Schema([
-//            Habit.self,
-//        ])
+        
         let schema = Schema([
             Habit.self,
             HabitCompletion.self

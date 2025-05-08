@@ -33,6 +33,16 @@ struct CalendarView: View {
                 .listStyle(.plain)
             }
             .navigationTitle("Kalender")
+            //Kunna gå tillbaka till dagens datum med ett knapptryck
+            .navigationBarItems(trailing:
+                Button(action: {
+                    selectedDate = Date()
+                }) {
+                    Text("Idag")
+                        .foregroundColor(.blue)
+                }
+                .disabled(Calendar.current.isDate(selectedDate, inSameDayAs: Date()))
+            )
         }
     }
     
@@ -57,7 +67,7 @@ struct CalendarView: View {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: Habit.self, HabitCompletion.self, configurations: config)
     
-    let habit = Habit(name: "Kalendervana")
+    let habit = Habit(name: "Test-mål")
     let completion = HabitCompletion(date: Date())
     habit.completions.append(completion)
     container.mainContext.insert(habit)

@@ -6,9 +6,10 @@ final class Habit {
     var name: String
     var isDaily: Bool
     var creationDate: Date
+    //koppla ihop modellerna
     @Relationship(deleteRule: .cascade) var completions = [HabitCompletion]()
     
-    // Ta bort Calendar.current från modellen
+
     init(name: String, isDaily: Bool = false) {
         self.name = name
         self.isDaily = isDaily
