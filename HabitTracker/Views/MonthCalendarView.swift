@@ -14,11 +14,28 @@ struct MonthCalendarView: View {
     
     var body: some View {
         VStack {
-            // Månads- och årshuvud
+            // Månads- och årshuvud med navigeringsknappar
             HStack {
+                Button {
+                    changeMonth(by: -1) // Föregående månad
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.headline)
+                }
+                
+                Spacer()
+                
                 Text(monthName)
                     .font(.headline)
+                
                 Spacer()
+                
+                Button {
+                    changeMonth(by: 1) // Nästa månad
+                } label: {
+                    Image(systemName: "chevron.right")
+                        .font(.headline)
+                }
             }
             .padding(.bottom, 8)
             
@@ -40,6 +57,13 @@ struct MonthCalendarView: View {
                         }
                 }
             }
+        }
+        .padding(.horizontal)
+    }
+    
+    private func changeMonth(by value: Int) {
+        if let newDate = calendar.date(byAdding: .month, value: value, to: selectedDate) {
+            selectedDate = newDate
         }
     }
     
